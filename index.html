@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌳 涵涵的开心树洞</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 50%, #e8eaf6 100%);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    min-height: 100vh;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 30px;
+  }
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .container {
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 28px 22px;
+    max-width: 440px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+  }
+  .header { text-align: center; margin-bottom: 8px; }
+  .header h1 { font-size: 26px; color: #6b46c1; margin-bottom: 6px; }
+  .header p { font-size: 14px; color: #888; }
+  .emoji { font-size: 40px; display: block; margin-bottom: 4px; }
+
+  .question-card {
+    margin: 18px 0 6px;
+    padding: 16px;
+    background: #fafbff;
+    border-radius: 16px;
+    border: 1px solid #eee;
+  }
+  .question {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  button {
+    padding: 11px 8px;
+    border: none;
+    border-radius: 12px;
+    background: #edf2f7;
+    cursor: pointer;
+    font-size: 13.5px;
+    transition: all 0.18s;
+    font-family: inherit;
+  }
+  button:hover { background: #e2e8f0; transform: translateY(-2px); }
+  button:active { transform: translateY(0); }
+  button.selected {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    font-weight: 600;
+  }
+  .reply {
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #fef9c3, #fef3c7);
+    border-radius: 12px;
+    color: #92400e;
+    font-size: 14px;
+    min-height: 20px;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: all 0.3s;
+  }
+  .reply.show { opacity: 1; transform: translateY(0); }
+
+  .textarea-card { margin-top: 20px; }
+  textarea {
+    width: 100%;
+    height: 80px;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 12px;
+    resize: none;
+    font-size: 14px;
+    font-family: inherit;
+    box-sizing: border-box;
+    margin-top: 8px;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { outline: none; border-color: #764ba2; }
+  .submit-btn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 14px;
+  }
+  .submit-btn:hover { opacity: 0.92; transform: translateY(-2px); }
+  .hidden { display: none; }
+
+  .footer { text-align: center; margin-top: 18px; font-size: 12px; color: #bbb; }
+  .progress-bar { height: 6px; background: #edf2f7; border-radius: 20px; margin: 14px 0 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 20px; width: 0; transition: width 0.4s; }
+
+  /* 今日运势按钮 */
+  .fortune-section {
+    margin-top: 22px;
+    text-align: center;
+    padding: 20px 16px;
+    background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+    border-radius: 18px;
+    color: #fff;
+  }
+  .fortune-btn {
+    padding: 14px 28px;
+    font-size: 17px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.95);
+    color: #6b46c1;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+  .fortune-btn:hover { transform: scale(1.05) translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+  .fortune-btn:active { transform: scale(0.95); }
+  .fortune-result {
+    margin-top: 14px;
+    font-size: 15px;
+    min-height: 22px;
+    line-height: 1.6;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .fortune-result.show { opacity: 1; transform: scale(1); }
+  .fortune-emoji { font-size: 32px; display: block; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <span class="emoji">🌳</span>
+    <h1>涵涵的开心树洞</h1>
+    <p>不开心？进来选一选，笑一个算我赢 😎</p>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+  <!-- 题目容器 -->
+  <div id="questions"></div>
+
+  <!-- 今日运势 -->
+  <div class="fortune-section">
+    <div style="font-size:15px; font-weight:600; margin-bottom:10px; opacity:0.9;">🔮 还有个隐藏彩蛋 →</div>
+    <button class="fortune-btn" onclick="getFortune()">✨ 测测今日运势 ✨</button>
+    <div class="fortune-result" id="fortuneResult"></div>
+  </div>
+
+  <!-- 树洞留言 -->
+  <div class="question-card textarea-card">
+    <div class="question">💌 还有啥憋不住的？写这儿！</div>
+    <textarea id="msg" placeholder="写完点丢进树洞，树洞替你吃掉烦恼（反正也不会有人知道）..."></textarea>
+    <button class="submit-btn" onclick="submitMsg()">丢进树洞 🌪️</button>
+    <div class="reply hidden" id="msgReply"></div>
+  </div>
+
+  <div class="footer">一个用来犯傻和回血的树洞 · 不保存任何记录，纯纯快乐 🫶</div>
+</div>
+
+<script>
+// ============ 12 道离谱搞笑题目 ============
+const questions = [
+  {
+    q: "如果可以把老板换成一种食物，你选？",
+    options: {
+      "🍅 西红柿": "酸得恰到好处，砸到脸上还会汁水四溅，爽！",
+      "🧊 冰块": "冷冰冰没有感情，摔地上还会碎成一地，解压。",
+      "🍞 吐司": "平平无奇、没滋没味，但好歹不会害人。",
+      "🌶️ 辣椒": "一开会就让人辣眼睛，但偶尔也挺提神的。"
+    }
+  },
+  {
+    q: "你突然变成了一只猫，第一件事做啥？",
+    options: {
+      "😴 找个键盘睡觉": "经典操作。打工人变猫的第一天，继续挡别人干活。",
+      "📦 钻纸箱": "纸箱比床好？这是全宇宙猫的共识，不接受反驳。",
+      "🙀 乱挠东西": "爪子需要释放！沙发：我做错了什么？？",
+      "👑 躺平等投喂": "翻身把肚皮露出来——这才是猫生巅峰。"
+    }
+  },
+  {
+    q: "遇到外星人，你第一句话是？",
+    options: {
+      "💼 要打工吗？包吃包住": "外星人：？？？你们星球这么卷？",
+      "📸 先合个影发朋友圈": "宇宙第一网红，就在今天诞生了！",
+      "🍜 吃泡面吗？": "用泡面外交打开星际关系，格局打开！",
+      "🏃 掉头就跑": "理性选择。万一它是来收房贷的呢？"
+    }
+  },
+  {
+    q: "如果哭能赚钱，你今天能赚多少？",
+    options: {
+      "💰 一个小目标": "好家伙，直接财务自由，眼泪是最贵的液体！",
+      "🪙 够买个冰棍": "别灰心，至少今天冰棍自由了。",
+      "💸 倒欠钱": "因为你是笑哭的，笑哭不算，倒扣钱。扎心了。",
+      "🏦 破产保护": "银行：您的眼泪储备已超额，请停止哭泣。"
+    }
+  },
+  {
+    q: "给你一个超能力，你选哪个？",
+    options: {
+      "⏰ 时间倒流5分钟": "每天能倒流无数次，等于永远不迟到！上班永远准点到达。",
+      "🍚 米饭变满汉全席": "民以食为天，吃饱了才有力气不想上班。",
+      "🫥 隐身摸鱼": "开会直接隐身，谁也看不见你，带薪拉屎的终极形态！",
+      "🧠 读心术": "能听到老板心里想'其实我也不会'，瞬间平衡了。"
+    }
+  },
+  {
+    q: "周一早上闹钟响了，你的第一反应？",
+    options: {
+      "🛌 把它拍死，像拍蚊子": "闹钟：我做错了什么？我只是想叫你起床……",
+      "🧟 坐起来但灵魂还在床上": "恭喜你达成了成就——僵尸模式，请小心别咬到同事。",
+      "🏃 直接弹射起步冲去上班": "等等，你没看日历吗？今天周六啊大哥！！",
+      "🥔 翻个面继续睡，我是煎饼": "煎饼：我熟了，别翻了，让我再躺会儿。"
+    }
+  },
+  {
+    q: "老板说'需求很简单'，你内心：",
+    options: {
+      "🪦 已经开始写遗书了": "上一次他说简单，我们加班到初恋都分手了。",
+      "🤡 看，又一个小丑出现了": "老板：我说的简单是指——'我简单说一下'，然后说两小时。",
+      "🧠 我的脑子已自动关机": "系统提示：您的CPU已过热，正在强制休眠……",
+      "🍿 搬好小板凳准备看戏": "好戏开场！他三分钟后就会说'再加个小功能'。"
+    }
+  },
+  {
+    q: "钱包空了，你的第一反应？",
+    options: {
+      "🪙 检查裤兜有没有钢镚儿": "恭喜！找到一个一毛钱，够你买个……想多了。",
+      "📞 给妈打电话": "妈妈：又没钱了？你是不是被诈骗了？我查查你定位。",
+      "🌳 去路边摇树，说不定掉钱": "你摇了半天，掉下来一只鸟，拉了你一身。",
+      "🧘 宣布自己已'财务自由'——自由到没钱": "从今天起，你吃空气，喝西北风，住天桥，人生巅峰！"
+    }
+  },
+  {
+    q: "如果情绪有颜色，今天是啥色？",
+    options: {
+      "🌈 五彩斑斓的黑": "又丧又想装没事，当代打工人的专属色号。",
+      "💗 荧光粉": "今天状态不错嘛！粉粉嫩嫩，像刚充完电。",
+      "🟤 水泥灰": "没有感情，只想放空，像工地里的一袋水泥。",
+      "💚 荧光绿": "绿得发光，像被生活绿了之后的反弹气场。"
+    }
+  },
+  {
+    q: "周末你打算怎么过？",
+    options: {
+      "🛏️ 和被窝举行婚礼": "婚礼进行曲响起：你愿意这辈子都不离开被子吗？'我愿意！！'",
+      "🎮 打游戏打到被邻居投诉": "邻居：'半夜三点你在嚎什么？' 你：'我在拯救世界！！'",
+      "🧹 大扫除，然后累得又躺一天": "打扫了三小时，累瘫了，周末结束了。值得吗？不值得。下周还干。",
+      "🚶 出门走走，然后迷路了": "导航说'已到达目的地'，你看了看：一片玉米地。这是哪？？"
+    }
+  },
+  {
+    q: "开会开到一半，突然被点名，你的真实状态是？",
+    options: {
+      "👁️ 眼睛睁着但脑子在夏威夷": "你的灵魂正在海滩喝椰子，身体还在会议室点头。",
+      "✏️ 在笔记本上画老板的Q版头像": "画得还挺像——如果老板是个土豆的话。",
+      "🤖 进入了省电模式": "电量5%，正在自动保存……保存失败，已关机。",
+      "🙋 完全不知道在说啥就点头": "'你觉得呢？' 你：'嗯…这个…确实…那个…对！' 老板：'对什么？我说的是取消下午茶。'"
+    }
+  },
+  {
+    q: "深夜12点突然饿了，你选择？",
+    options: {
+      "🍜 泡面加蛋，豪华套餐": "你吃泡面的样子，像极了米其林三星评委。",
+      "🧊 去冰箱前祈祷有吃的": "打开冰箱：一盏灯，半瓶酱油，一根孤独的葱。这就是你的人生。",
+      "📱 点外卖但起送价不够": "差3块钱起送，你加了一包纸巾凑单，配送费比饭贵。",
+      "🌬️ 闻空气，假装吃过了": "你深深地吸了一口气：嗯，红烧肉味的空气，真饱。"
+    }
+  }
+];
+
+// ============ 今日运势预言库 ============
+const fortunes = [
+  { emoji: "🎉", text: "今日运势：暴富！\n虽然只是梦里暴富，但梦里的快乐也是快乐啊！" },
+  { emoji: "🍕", text: "今日运势：吃货光环！\n今天无论吃什么都会特别好吃，连泡面都是满汉全席的味道。" },
+  { emoji: "😴", text: "今日运势：充电日！\n适合摆烂，适合发呆，适合把'不'字挂在嘴边。你值得。" },
+  { emoji: "🎲", text: "今日运势：欧皇附体！\n走路会捡钱（一毛也算），摸奖必中奖（再来一瓶也算）。" },
+  { emoji: "💜", text: "今日运势：桃花运！\n可能会有人请你吃饭，如果没人请……那你自己请自己吧，这也是爱。" },
+  { emoji: "🦄", text: "今日运势：神奇的一天！\n今天你做什么都会成功，包括——成功又活过了一天！" },
+  { emoji: "🍀", text: "今日运势：锦鲤附体！\n今天的好运会像不要钱一样砸过来，虽然钱还是要自己赚。" },
+  { emoji: "🎯", text: "今日运势：效率拉满！\n今天干活速度堪比火箭，摸鱼速度堪比光速。都是天赋。" },
+  { emoji: "🌈", text: "今日运势：彩虹屁！\n今天不管你做什么，都会有人说你好看。如果不说，那就是嫉妒。" },
+  { emoji: "🧲", text: "今日运势：吸金体质！\n钱会从奇怪的地方来找你——比如你妈突然转你500。" },
+  { emoji: "🎪", text: "今日运势：马戏团！\n今天会经历很多离谱的事，但没关系，你本身就是最离谱的那个。" },
+  { emoji: "🛡️", text: "今日运势：无敌幸运！\n今天你自带防尴尬护盾，说什么都对，做啥都帅。" },
+  { emoji: "🐱", text: "今日运势：猫系！\n今天你有九条命，犯错了也不怕，大不了装可爱蒙混过关。" },
+  { emoji: "🎈", text: "今日运势：放飞自我！\n今天适合做点疯狂的事，比如——上班穿拖鞋，下班蹦迪去。" },
+  { emoji: "🦋", text: "今日运势：蜕变！\n今天你会脱胎换骨……脱胎换骨地想躺平。但这是进化的必经之路。" },
+  { emoji: "🔮", text: "今日运势：神秘！\n今天你会有预感，比如预感到自己又要加班。预言家石锤。" }
+];
+
+// ============ 树洞留言回复库 ============
+const encouragements = [
+  "你已经做得很好了，真的。允许自己偶尔摆烂，是成年人最高级的自律。",
+  "今天的不开心就止于此吧，明天依旧光芒万丈，工资依旧按时到账。",
+  "树洞替你把烦恼吃掉啦，现在你轻飘飘的～记得给自己买杯奶茶。",
+  "别担心，宇宙的 KPI 里，你已经超额完成了今天的份。",
+  "累了就休息，不是只有奔跑才算努力，发呆也是在给灵魂充电。",
+  "你比自己想象的要强大得多。毕竟，你撑过了那么多个周一。",
+  "生活偶尔会皮一下，但大多数时候，它还是爱你的。就像我一样。",
+  "笑一下嘛～你笑起来，比工资到账那一刻还好看。"
+];
+
+// ============ 渲染题目 ============
+const container = document.getElementById('questions');
+let answeredCount = 0;
+
+questions.forEach((item, idx) => {
+  const card = document.createElement('div');
+  card.className = 'question-card';
+  card.innerHTML = `
+    <div class="question">
+      ${idx + 1}. ${item.q}
+    </div>
+    <div class="options" id="opts-${idx}"></div>
+    <div class="reply" id="reply-${idx}"></div>
+  `;
+  container.appendChild(card);
+
+  const optsDiv = document.getElementById(`opts-${idx}`);
+  Object.entries(item.options).forEach(([label, text]) => {
+    const btn = document.createElement('button');
+    btn.innerText = label;
+    btn.onclick = () => {
+      // 标记选中
+      Array.from(optsDiv.children).forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      // 显示回复
+      const reply = document.getElementById(`reply-${idx}`);
+      reply.innerText = text;
+      reply.classList.add('show');
+      // 进度
+      if (!btn.dataset.counted) {
+        btn.dataset.counted = '1';
+        answeredCount++;
+        document.getElementById('progress').style.width = (answeredCount / questions.length * 100) + '%';
+      }
+    };
+    optsDiv.appendChild(btn);
+  });
+});
+
+// ============ 今日运势 ============
+let fortuneUsed = false;
+function getFortune() {
+  const btn = document.querySelector('.fortune-btn');
+  const result = document.getElementById('fortuneResult');
+
+  // 点击动画
+  btn.style.transform = 'scale(0.9)';
+  setTimeout(() => { btn.style.transform = ''; }, 150);
+
+  // 随机选一条预言
+  const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+  result.classList.remove('show');
+  setTimeout(() => {
+    result.innerHTML = `<span class="fortune-emoji">${fortune.emoji}</span>${fortune.text.replace('\n', '<br>')}`;
+    result.classList.add('show');
+  }, 200);
+}
+
+// ============ 留言提交 ============
+function submitMsg() {
+  const msg = document.getElementById('msg').value.trim();
+  if (!msg) {
+    alert('先写点什么嘛，树洞不挑，废话也行～');
+    return;
+  }
+  const randomReply = encouragements[Math.floor(Math.random() * encouragements.length)];
+  const replyDiv = document.getElementById('msgReply');
+  replyDiv.innerText = randomReply;
+  replyDiv.classList.remove('hidden');
+  replyDiv.classList.add('show');
+  document.getElementById('msg').value = '';
+}
+</script>
+</body>
+</html>
