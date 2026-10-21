@@ -115,6 +115,8 @@
     font-size: 16px;
     font-weight: 600;
     border-radius: 14px;
+    border: none;
+    cursor: pointer;
   }
   .submit-btn:hover { opacity: 0.92; transform: translateY(-2px); }
   .hidden { display: none; }
@@ -122,49 +124,33 @@
   .footer { text-align: center; margin-top: 18px; font-size: 12px; color: #bbb; }
   .progress-bar { height: 6px; background: #edf2f7; border-radius: 20px; margin: 14px 0 4px; overflow: hidden; }
   .progress-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 20px; width: 0; transition: width 0.4s; }
-
-  /* 运势彩蛋 */
-  .fortune-card {
-    margin-top: 20px;
-    padding: 20px;
-    background: linear-gradient(135deg, #f3e8ff, #fce7f3);
-    border-radius: 16px;
-    text-align: center;
-    border: 1px solid #e9d5ff;
-  }
+  
+  .fortune-card { text-align: center; margin-top: 20px; }
   .fortune-btn {
-    padding: 14px 28px;
-    background: linear-gradient(135deg, #a855f7, #ec4899);
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.3s;
+    background: linear-gradient(135deg, #f6d365, #fda085);
+    color: #fff;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 20px;
     border: none;
-  }
-  .fortune-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 25px rgba(168,85,247,0.3); }
-  .fortune-btn:active { transform: translateY(0) scale(0.98); }
-  .fortune-result {
-    margin-top: 14px;
-    padding: 14px;
-    background: rgba(255,255,255,0.8);
-    border-radius: 12px;
+    cursor: pointer;
     font-size: 15px;
-    color: #7c3aed;
-    line-height: 1.6;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.4s;
   }
-  .fortune-result.show { opacity: 1; transform: translateY(0); }
+  #fortuneResult {
+    margin-top: 10px;
+    padding: 12px;
+    background: #fff3cd;
+    border-radius: 12px;
+    color: #856404;
+    font-size: 14px;
+  }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
     <span class="emoji">🌳</span>
-    <h1>涵涵的开心树洞</h1>
+    <h1>猪猪的开心树洞</h1>
     <p>不开心？进来选一选，笑一个算我赢 😎</p>
   </div>
 
@@ -173,11 +159,10 @@
   <!-- 题目容器 -->
   <div id="questions"></div>
 
-  <!-- 今日运势彩蛋 -->
+  <!-- 今日运势 -->
   <div class="fortune-card">
-    <div style="font-size:15px;color:#7c3aed;margin-bottom:10px;font-weight:600;">🔮 今日运势彩蛋</div>
-    <button class="fortune-btn" onclick="getFortune()">✨ 测一下今日运势</button>
-    <div class="fortune-result" id="fortuneResult"></div>
+    <button class="fortune-btn" onclick="getFortune()">✨ 测测今日运势 ✨</button>
+    <div class="reply hidden" id="fortuneResult"></div>
   </div>
 
   <!-- 树洞留言 -->
@@ -192,8 +177,9 @@
 </div>
 
 <script>
-// ============ 12 道题目（前6题已替换为你给的版本）============
+// ============ 12 道爆笑题目 (1-6职场，7-12无厘头) ============
 const questions = [
+  // 1-6题
   {
     q: "周一早上闹钟响的那一刻，你内心是？",
     options: {
@@ -204,10 +190,10 @@ const questions = [
     }
   },
   {
-    q: "老板说"这个需求很简单，很快就好"，你？",
+    q: "老板说“这个需求很简单，很快就好”，你？",
     options: {
       "🙂 信了": "祝你平安。简单通常指——他要改 8 遍。",
-      "🤥 表面笑": "成年人的世界没有崩溃，只有"好的收到，我看一下"。",
+      "🤥 表面笑": "成年人的世界没有崩溃，只有“好的收到，我看一下”。",
       "📝 先要排期": "专业！先甩个文档过去，让需求在流程里迷路。",
       "🏃 想跑路": "树洞理解你。但先别跑，把工资结了再跑。"
     }
@@ -248,7 +234,7 @@ const questions = [
       "🤝 找朋友": "真正的朋友会在你说没钱的时候说：走，我请。"
     }
   },
-  // ===== 后6题：无厘头搞笑 =====
+  // 7-12题（新替换）
   {
     q: "把老板换成一种食物，你选？",
     options: {
@@ -307,20 +293,15 @@ const questions = [
 
 // ============ 今日运势库 ============
 const fortunes = [
-  "🔮 今日运势：暴富！虽然只是梦里暴富，但梦里的你穿的是Gucci。",
-  "🔮 今日运势：桃花运爆棚！不过可能是桃花瘴，小心过敏。",
-  "🔮 今日运势：工作顺利！老板今天心情好，需求真的很简单（这次是真的）。",
-  "🔮 今日运势：财运上升！下午会捡到一块钱，记得买张彩票。",
-  "🔮 今日运势：健康运满分！今天适合运动，哪怕只是从床上走到厕所。",
-  "🔮 今日运势：学业进步！考试全都会，蒙的全都对。",
-  "🔮 今日运势：人缘爆表！今天所有人都会对你笑，包括陌生人。",
-  "🔮 今日运势：小心水逆！今天别喝奶茶，容易洒在白衬衫上。",
-  "🔮 今日运势：惊喜将至！快递会比预期早到一天，快乐加倍。",
-  "🔮 今日运势：灵感爆发！今天适合创作，哪怕只是发一条有趣的朋友圈。",
+  "🔮 今日运势：宜摸鱼，忌内卷。今天适合发呆，工作效率靠缘分。",
+  "🔮 今日运势：奶茶运极佳！今天喝的奶茶甜度满分，别喝太多小心胖。",
+  "🔮 今日运势：财运小爆发！可能捡到钱（一元也算），或快递提前到。",
+  "🔮 今日运势：桃花运？不，是花被你踩了。今天低调做人。",
+  "🔮 今日运势：睡眠极佳！今晚秒睡，连梦都不做，一觉到天亮。",
+  "🔮 今日运势：灵感爆发！今天适合创作，哪怕只是发条有趣朋友圈。",
   "🔮 今日运势：躺平吉日！今天做什么都顺，因为你不做什么。",
   "🔮 今日运势：口才极佳！今天吵架你一定赢，但建议别吵，微笑就好。",
   "🔮 今日运势：美食运！今天吃什么都好吃，连泡面都吃出米其林的感觉。",
-  "🔮 今日运势：睡眠极佳！今晚你会秒睡，连梦都不做，一觉到天亮。",
   "🔮 今日运势：神秘力量！今天会有好事发生，但说破就不灵了，闭嘴等。",
   "🔮 今日运势：反向暴富！今天花钱如流水，但流水过后就是大海——别想了，继续搬砖。"
 ];
@@ -378,6 +359,7 @@ function getFortune() {
   const result = document.getElementById('fortuneResult');
   const randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
   result.innerText = randomFortune;
+  result.classList.remove('hidden');
   result.classList.add('show');
 }
 
